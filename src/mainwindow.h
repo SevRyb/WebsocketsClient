@@ -40,6 +40,7 @@ private:
     QWebSocket m_webSocket;
     QUrl m_url;
     bool m_isConnected;
+    QString m_baseWindowTitle;
 };
 
 #endif // MAINWINDOW_H

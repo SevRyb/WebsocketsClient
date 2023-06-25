@@ -6,8 +6,9 @@ using namespace oclero;
 MainWindow::MainWindow(QWidget *parent)
     : qlementine::FramelessWindow(parent)
     , m_isConnected{false}
+    , m_baseWindowTitle("WebsocketsClient")
 {
-    setWindowTitle("WebsocketsClient");
+    setWindowTitle(m_baseWindowTitle);
     resize(500, 300);
     m_rootLay = new QGridLayout;
     m_rootWidget = new QWidget(this);
@@ -73,7 +74,7 @@ void MainWindow::onConnected()
     m_urlEdit->setStatus(qlementine::Status::Success);
     m_disconnectBtn->setEnabled(true);
     m_sendBtn->setEnabled(true);
-    setWindowTitle("Websocket Client [" + m_url.toDisplayString() + "]");
+    setWindowTitle(m_baseWindowTitle + " [" + m_url.toDisplayString() + "]");
 }
 
 void MainWindow::onMessageReceived(QString text)
@@ -88,14 +89,13 @@ void MainWindow::onDisconnected()
     m_urlEdit->setStatus(qlementine::Status::Default);
     m_disconnectBtn->setEnabled(false);
     m_sendBtn->setEnabled(false);
-    setWindowTitle("Websocket Client");
+    setWindowTitle(m_baseWindowTitle);
 }
 
 void MainWindow::onError(QAbstractSocket::SocketError error)
 {
     m_urlEdit->setStatus(qlementine::Status::Error);
     m_sendBtn->setEnabled(false);
-    setWindowTitle("Websocket Client");
 }
 
 
