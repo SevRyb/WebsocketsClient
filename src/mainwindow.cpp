@@ -5,7 +5,7 @@ using namespace oclero;
 
 MainWindow::MainWindow(QWidget *parent)
     : qlementine::FramelessWindow(parent)
-    , m_isConnected{false}
+    , m_isConnected(false)
     , m_baseWindowTitle("WebsocketsClient")
 {
     setWindowTitle(m_baseWindowTitle);
@@ -19,8 +19,8 @@ MainWindow::MainWindow(QWidget *parent)
     m_connectBtn = new QPushButton("Connect", this);
     m_disconnectBtn = new QPushButton("Disconnect", this);
     m_sendBtn = new QPushButton("Send", this);
-    m_dataToSendTextEdit = new QTextEdit(this);
-    m_responseTextEdit = new QTextEdit(this);
+    m_dataToSendTextEdit = new QPlainTextEdit(this);
+    m_responseTextEdit = new QPlainTextEdit(this);
 
     m_rootLay->addWidget(m_urlEdit, 0, 0, 1, 3);
     m_rootLay->addWidget(m_connectBtn, 1, 0);
@@ -56,6 +56,7 @@ MainWindow::MainWindow(QWidget *parent)
             });
     connect(m_sendBtn, &QPushButton::clicked, this, [this]()
             {
+                m_responseTextEdit->clear();
                 QString text = m_dataToSendTextEdit->toPlainText();
                 if (text.isEmpty())
                     return;
@@ -65,6 +66,12 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    m_webSocket.close();
+    qlementine::FramelessWindow::closeEvent(event);
 }
 
 void MainWindow::onConnected()
@@ -79,8 +86,7 @@ void MainWindow::onConnected()
 
 void MainWindow::onMessageReceived(QString text)
 {
-    m_responseTextEdit->clear();
-    m_responseTextEdit->setText(text);
+    m_responseTextEdit->setPlainText(text);
 }
 
 void MainWindow::onDisconnected()

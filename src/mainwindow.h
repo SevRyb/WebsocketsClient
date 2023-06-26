@@ -6,7 +6,7 @@
 #include <oclero/qlementine/widgets/LineEdit.hpp>
 #include <QGridLayout>
 #include <QLineEdit>
-#include <QTextEdit>
+#include <QPlainTextEdit>
 #include <QPushButton>
 
 #include <QWebSocket>
@@ -21,7 +21,8 @@ class MainWindow : public qlementine::FramelessWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-
+protected:
+    void closeEvent(QCloseEvent *event) override;
 private slots:
     void onConnected();
     void onMessageReceived(QString text);
@@ -34,13 +35,14 @@ private:
     QPushButton *m_connectBtn;
     QPushButton *m_disconnectBtn;
     QPushButton *m_sendBtn;
-    QTextEdit *m_dataToSendTextEdit;
-    QTextEdit *m_responseTextEdit;
+    QPlainTextEdit *m_dataToSendTextEdit;
+    QPlainTextEdit *m_responseTextEdit;
+
+    QString m_baseWindowTitle;
 
     QWebSocket m_webSocket;
     QUrl m_url;
     bool m_isConnected;
-    QString m_baseWindowTitle;
 };
 
 #endif // MAINWINDOW_H
