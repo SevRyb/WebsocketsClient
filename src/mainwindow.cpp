@@ -5,7 +5,6 @@ using namespace oclero;
 
 MainWindow::MainWindow(QWidget *parent)
     : qlementine::FramelessWindow(parent)
-    , m_isConnected(false)
     , m_baseWindowTitle("WebsocketsClient")
 {
     setWindowTitle(m_baseWindowTitle);
@@ -20,6 +19,9 @@ MainWindow::MainWindow(QWidget *parent)
     m_disconnectBtn = new QPushButton("Disconnect", this);
     m_sendBtn = new QPushButton("Send", this);
     m_dataToSendTextEdit = new QPlainTextEdit(this);
+    m_autoclearSwitch = new qlementine::Switch(this);
+    m_autoclearSwitch->setText("Auto clear");
+    m_autoclearSwitch->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
     m_responseTextEdit = new QPlainTextEdit(this);
 
     m_rootLay->addWidget(m_urlEdit, 0, 0, 1, 3);
@@ -27,7 +29,8 @@ MainWindow::MainWindow(QWidget *parent)
     m_rootLay->addWidget(m_disconnectBtn, 1, 1);
     m_rootLay->addWidget(m_sendBtn, 1, 2);
     m_rootLay->addWidget(m_dataToSendTextEdit, 2, 0, 1, 3);
-    m_rootLay->addWidget(m_responseTextEdit, 3, 0, 1, 3);
+    m_rootLay->addWidget(m_autoclearSwitch, 3, 0, 1, 1);
+    m_rootLay->addWidget(m_responseTextEdit, 4, 0, 1, 3);
 
     /**/
     m_urlEdit->setPlaceholderText("ws://");
@@ -56,7 +59,8 @@ MainWindow::MainWindow(QWidget *parent)
             });
     connect(m_sendBtn, &QPushButton::clicked, this, [this]()
             {
-                m_responseTextEdit->clear();
+                if (m_autoclearSwitch->isChecked())
+                    m_responseTextEdit->clear();
                 QString text = m_dataToSendTextEdit->toPlainText();
                 if (text.isEmpty())
                     return;
@@ -76,7 +80,6 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::onConnected()
 {
-    m_isConnected = true;
     connect(&m_webSocket, &QWebSocket::textMessageReceived, this, &MainWindow::onMessageReceived);
     m_urlEdit->setStatus(qlementine::Status::Success);
     m_disconnectBtn->setEnabled(true);
@@ -86,12 +89,13 @@ void MainWindow::onConnected()
 
 void MainWindow::onMessageReceived(QString text)
 {
-    m_responseTextEdit->setPlainText(text);
+    if (m_autoclearSwitch->isChecked())
+        m_responseTextEdit->clear();
+    m_responseTextEdit->appendPlainText(text);
 }
 
 void MainWindow::onDisconnected()
 {
-    m_isConnected = false;
     m_urlEdit->setStatus(qlementine::Status::Default);
     m_disconnectBtn->setEnabled(false);
     m_sendBtn->setEnabled(false);
